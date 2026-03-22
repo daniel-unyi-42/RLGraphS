@@ -42,7 +42,7 @@ class GNBlock(nn.Module):
           self.conv = gnn.GCNConv(in_channels, out_channels)
         elif conv_type == 'ChebConv':
           assert edge_dim <= 1, 'ChebConv only supports edge_dim <= 1'
-          self.conv = gnn.ChebConv(in_channels, out_channels, K=2)
+          self.conv = gnn.ChebConv(in_channels, out_channels, K=1)
         elif conv_type == 'GATConv':
           self.conv = gnn.GATv2Conv(in_channels, out_channels, edge_dim=edge_dim)
         elif conv_type == 'GINConv':
@@ -50,10 +50,13 @@ class GNBlock(nn.Module):
             self.conv = gnn.GINConv(MLPBlock(in_channels, hidden_channels, out_channels))
           else:
             self.conv = gnn.GINEConv(MLPBlock(in_channels, hidden_channels, out_channels), edge_dim=edge_dim)
+        elif conv_type == 'GraphConv':
+          assert edge_dim <= 1, 'GraphConv only supports edge_dim <= 1'
+          self.conv = gnn.GraphConv(in_channels, out_channels)
         elif conv_type == 'NNConv':
           self.conv = GNLayer(in_channels, hidden_channels, out_channels, edge_dim=edge_dim)
         else:
-          raise ValueError(f'conv_type must be one of "GCNConv", "ChebConv", "GATConv", "GINConv", "NNConv", but got {conv_type}')
+          raise ValueError(f'conv_type must be one of "GCNConv", "ChebConv", "GATConv", "GINConv", "GraphConv", "NNConv", but got {conv_type}')
         self.act = nn.LeakyReLU()
         self.use_norm = use_norm
         if use_norm:
